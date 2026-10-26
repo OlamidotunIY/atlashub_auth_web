@@ -43,3 +43,8 @@ Use **feature-oriented DDD + Clean Architecture + Hexagonal ports/adapters** for
 - [Module-by-module implementation backlog](docs/modules/index.md)
 
 No Turborepo/Nx. These are **design rules**; implementation, IdP-backed SSO and migrations remain pending.
+
+
+## Shared contracts and authentication protocol (2026-10-26)
+
+[atlashub_contracts](https://github.com/OlamidotunIY/atlashub_contracts) stores shared Protobuf service/event schemas such as separate individual `UserRegisteredEvent` and later `OrganizationCreatedEvent`. **Do not implement login/registration as an arbitrary Protobuf gRPC replacement for OIDC.** The Auth Web frontend remains OAuth/OIDC HTTPS user experience, with Java/IdP as real authentication authority and central SSO. Consume versioned contracts only if an approved Auth Web API genuinely needs them; never install internal AI/financial contract bundles or credential issuance stubs in browsers. [Transport/SSO boundaries](https://github.com/OlamidotunIY/atlashub_contracts/blob/main/docs/architecture/transports-security.md).
