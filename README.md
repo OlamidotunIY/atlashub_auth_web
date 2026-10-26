@@ -30,3 +30,16 @@ A separate [atlashub_theme_sdk](https://github.com/OlamidotunIY) repository for 
 - [Implementation modules, route flows and test backlog](docs/modules/index.md)
 
 No user registration flow, OIDC endpoint or login UI in this repository is yet implemented.
+
+
+## Engineering architecture and source layout
+
+Use **feature-oriented DDD + Clean Architecture + Hexagonal ports/adapters** for the identity UI. Domain policies and application use cases are framework-independent; React forms, navigation and Java/IdP HTTP are adapters. This repository contains no authentication server/credential database. CQRS is selective, not required for every form event.
+
+- [Clean/Hexagonal architecture and allowed dependencies](docs/architecture/clean-hexagonal.md)
+- [Proposed folder structure](docs/architecture/folder-structure.md)
+- [Engineering/security rules](docs/guidelines/engineering-rules.md)
+- [Testing and deployment requirements](docs/guidelines/testing-release.md)
+- [Module-by-module implementation backlog](docs/modules/index.md)
+
+No Turborepo/Nx. These are **design rules**; implementation, IdP-backed SSO and migrations remain pending.
