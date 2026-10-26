@@ -23,7 +23,7 @@
 | [atlashub_storefront](https://github.com/OlamidotunIY/atlashub_storefront) | Storefront management API, themed website hosting, builds and publishing |
 | [atlashub_intelligence](https://github.com/OlamidotunIY/atlashub_intelligence) | Python AI, auth delegated by Java |
 
-A separate [atlashub_theme_sdk](https://github.com/OlamidotunIY) repository for SDK, CLI, Vite scaffold and public contracts is **proposed, not yet verified as created**.
+The separate [atlashub_theme_sdk](https://github.com/OlamidotunIY/atlashub_theme_sdk) repository now exists with design documentation; SDK/CLI packages are not yet implemented or published.
 
 ## Specification and scope
 - [Login, registration, SSO, redirects, privacy and session contract](docs/architecture/identity-and-sso.md)
