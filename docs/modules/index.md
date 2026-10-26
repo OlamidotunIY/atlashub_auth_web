@@ -22,3 +22,8 @@
 6. Add MFA/passkeys, revocation, session/device/account recovery and exhaustive threat tests.
 
 No independent business legal/KYC flow, provider setup or organization creation forms belong in this repo; those live in the business app and specific provider integrations.
+
+
+## Architectural enforcement
+
+Every new Auth Web feature must follow [pure domain and inward ports](../architecture/clean-hexagonal.md), the [feature-based folder blueprint](../architecture/folder-structure.md), the [security/engineering rules](../guidelines/engineering-rules.md), and the [testing/release gates](../guidelines/testing-release.md). This is frontend UI only: the Java/IdP remains token/credential authority. Avoid mechanical command handlers for trivial React form state.
