@@ -15,9 +15,18 @@ export function ConsentPage() {
     const validatedUrl = new SafeRedirectTarget(returnTo).url;
     const url = new URL(validatedUrl);
 
-    // Attach tokens via hash fragment or query callback depending on receiver format
+    // Attach tokens via standard query params
     if (accessToken) url.searchParams.set('token', accessToken);
     if (refreshToken) url.searchParams.set('refresh_token', refreshToken);
+
+    // If target uses a hash route (e.g. createHashRouter), also propagate inside hash query
+    if (url.hash) {
+      const [hashPath, hashQuery] = url.hash.split('?');
+      const hashParams = new URLSearchParams(hashQuery || '');
+      if (accessToken) hashParams.set('token', accessToken);
+      if (refreshToken) hashParams.set('refresh_token', refreshToken);
+      url.hash = `${hashPath}?${hashParams.toString()}`;
+    }
 
     const timer = setTimeout(() => {
       window.location.href = url.toString();
