@@ -11,6 +11,7 @@
 - Redirect-based central SSO via **OIDC Authorization Code + PKCE** / secured BFF, with provider-managed identity sessions and separate application sessions. Browser identity UI alone **does not implement OIDC**.
 - No bearer token in URL redirects, no cross-app localStorage copying, no merchant management credentials on untrusted storefront domains.
 - Identity screens: login, register, email verification, recovery/reset, MFA/passkeys (when supported), consent and device/session management. Business onboarding, creator profiles, theme store and merchant integrations do **not** belong in Auth Web.
+- Payment TEST/LIVE selection does not belong in Auth Web, identity sessions or OIDC claims. It is explicit Payment workspace/API context.
 
 ## Connected repositories
 
