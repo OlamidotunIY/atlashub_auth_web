@@ -6,8 +6,8 @@ import type {
   TrustedDevice,
   UserIdentity,
 } from '../../../shared/domain/models/identity.model';
-import { Alert } from '../../../shared/presentation/components/Alert';
-import { AuthButton } from '../../../shared/presentation/components/AuthButton';
+import { Button, Card, CardHeader, CardTitle, CardContent } from '../../../shared/ui';
+import { AuthErrorBanner } from '../../../shared/presentation/widgets';
 
 export function SessionsPage() {
   const navigate = useNavigate();
@@ -77,39 +77,36 @@ export function SessionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30 p-4 sm:p-8">
-      <div className="max-w-3xl mx-auto flex flex-col gap-6">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-border pb-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-black text-xl">
-              A
-            </div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight">AtlasHub Central Identity</h1>
-              <p className="text-xs text-muted-foreground">Manage your sessions, devices, and profile</p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <AuthButton variant="outline" onClick={handleLogout} className="w-auto h-9 text-xs">
-              Sign out
-            </AuthButton>
-            <AuthButton
-              variant="secondary"
-              onClick={handleLogoutAll}
-              className="w-auto h-9 text-xs text-destructive hover:bg-destructive/10"
-            >
-              Sign out everywhere
-            </AuthButton>
-          </div>
+    <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto py-6">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-border pb-4">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight">AtlasHub Central Identity</h1>
+          <p className="text-xs text-muted-foreground">Manage your sessions, devices, and profile</p>
         </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleLogout}>
+            Sign out
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleLogoutAll}
+          >
+            Sign out everywhere
+          </Button>
+        </div>
+      </div>
 
-        {error && <Alert type="error">{error}</Alert>}
+      {error && <AuthErrorBanner error={error} />}
 
-        {/* User Card */}
-        {user && (
-          <div className="bg-card border border-border rounded-xl p-5 shadow-xs">
-            <h2 className="text-sm font-semibold text-foreground mb-3">Your Account</h2>
+      {/* User Card */}
+      {user && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-semibold">Your Account</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
                 <span className="text-muted-foreground block">Full Name</span>
@@ -132,12 +129,16 @@ export function SessionsPage() {
                 </span>
               </div>
             </div>
-          </div>
-        )}
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Active Sessions */}
-        <div className="bg-card border border-border rounded-xl p-5 shadow-xs">
-          <h2 className="text-sm font-semibold text-foreground mb-3">Active Sessions ({sessions.length})</h2>
+      {/* Active Sessions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold">Active Sessions ({sessions.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="flex flex-col divide-y divide-border text-xs">
             {sessions.map((s) => (
               <div key={s.id} className="py-3 flex items-center justify-between">
@@ -155,11 +156,15 @@ export function SessionsPage() {
               </div>
             ))}
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Trusted Devices */}
-        <div className="bg-card border border-border rounded-xl p-5 shadow-xs">
-          <h2 className="text-sm font-semibold text-foreground mb-3">Trusted Devices ({devices.length})</h2>
+      {/* Trusted Devices */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold">Trusted Devices ({devices.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
           {devices.length === 0 ? (
             <p className="text-xs text-muted-foreground">No recognized trusted devices on record.</p>
           ) : (
@@ -172,18 +177,20 @@ export function SessionsPage() {
                       Last seen: {dev.lastSeenIp} • Trusted on {new Date(dev.trustedAt).toLocaleDateString()}
                     </div>
                   </div>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="xs"
                     onClick={() => handleRevokeDevice(dev.id)}
-                    className="text-destructive text-xs hover:underline cursor-pointer"
+                    className="text-destructive hover:bg-destructive/10"
                   >
                     Revoke
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { container } from '../../../app/composition/container';
-import { Alert } from '../../../shared/presentation/components/Alert';
-import { AuthButton } from '../../../shared/presentation/components/AuthButton';
-import { AuthCard } from '../../../shared/presentation/components/AuthCard';
-import { AuthInput } from '../../../shared/presentation/components/AuthInput';
+import {
+  AuthButtonWidget,
+  AuthErrorBanner,
+  AuthFieldWidget,
+  AuthFormHeader,
+} from '../../../shared/presentation/widgets';
+import { Field, FieldDescription, FieldGroup } from '../../../shared/ui';
 import { ForgotPasswordSchema } from '../domain/recovery.schema';
 
 export function ForgotPasswordPage() {
@@ -40,40 +43,45 @@ export function ForgotPasswordPage() {
   };
 
   return (
-    <AuthCard
-      title="Reset your password"
-      subtitle="Enter your account email and we'll send you a password reset code"
-      footer={
-        <div className="text-center">
-          Remember your password?{' '}
-          <Link
-            to={`/login${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
-            className="text-primary font-semibold hover:underline"
-          >
-            Sign in
-          </Link>
-        </div>
-      }
-    >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {error && <Alert type="error">{error}</Alert>}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full max-w-md mx-auto">
+      <FieldGroup>
+        <AuthFormHeader
+          title="Reset your password"
+          subtitle="Enter your account email and we'll send you a password reset code"
+        />
 
-        <AuthInput
+        {error && <AuthErrorBanner error={error} />}
+
+        <AuthFieldWidget
+          id="email"
           label="Email address"
-          name="email"
           type="email"
           placeholder="ada@example.com"
-          required
-          autoFocus
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(val) => setEmail(val)}
+          disabled={isLoading}
+          required
+        />
+
+        <AuthButtonWidget
+          text="Send reset code"
+          loadingText="Sending code..."
+          isLoading={isLoading}
           disabled={isLoading}
         />
 
-        <AuthButton type="submit" isLoading={isLoading} loadingText="Sending code...">
-          Send reset code
-        </AuthButton>
-      </form>
-    </AuthCard>
+        <Field>
+          <FieldDescription className="text-center">
+            Remember your password?{' '}
+            <Link
+              to={`/login${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
+              className="underline underline-offset-4 hover:text-primary"
+            >
+              Log in
+            </Link>
+          </FieldDescription>
+        </Field>
+      </FieldGroup>
+    </form>
   );
 }

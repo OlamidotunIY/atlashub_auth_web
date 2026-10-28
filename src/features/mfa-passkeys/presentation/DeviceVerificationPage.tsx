@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { container } from '../../../app/composition/container';
-import { Alert } from '../../../shared/presentation/components/Alert';
-import { AuthButton } from '../../../shared/presentation/components/AuthButton';
-import { AuthCard } from '../../../shared/presentation/components/AuthCard';
-import { AuthInput } from '../../../shared/presentation/components/AuthInput';
+import {
+  AuthButtonWidget,
+  AuthErrorBanner,
+  AuthFieldWidget,
+  AuthFormHeader,
+} from '../../../shared/presentation/widgets';
+import { Field, FieldDescription, FieldGroup } from '../../../shared/ui';
 
 export function DeviceVerificationPage() {
   const navigate = useNavigate();
@@ -48,39 +51,48 @@ export function DeviceVerificationPage() {
   };
 
   return (
-    <AuthCard
-      title="Verify new device"
-      subtitle={`We noticed a login from an unrecognized device. A security code was sent to ${email || 'your email'}.`}
-      footer={
-        <div className="text-center">
-          <Link
-            to={`/login${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
-            className="text-primary font-semibold hover:underline"
-          >
-            Cancel and return to sign in
-          </Link>
-        </div>
-      }
-    >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {error && <Alert type="error">{error}</Alert>}
-        {success && <Alert type="success">{success}</Alert>}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full max-w-md mx-auto">
+      <FieldGroup>
+        <AuthFormHeader
+          title="Verify new device"
+          subtitle={`We noticed a login from an unrecognized device. A security code was sent to ${email || 'your email'}.`}
+        />
 
-        <AuthInput
+        {error && <AuthErrorBanner error={error} />}
+        {success && (
+          <div className="bg-primary/10 text-primary text-sm p-3 rounded-md text-center">
+            {success}
+          </div>
+        )}
+
+        <AuthFieldWidget
+          id="otp"
           label="Device Authorization Code"
-          name="otp"
           placeholder="e.g. 123456"
-          required
-          autoFocus
           value={otp}
-          onChange={(e) => setOtp(e.target.value)}
+          onChange={(val) => setOtp(val)}
+          disabled={isLoading}
+          required
+        />
+
+        <AuthButtonWidget
+          text="Authorize device"
+          loadingText="Verifying device..."
+          isLoading={isLoading}
           disabled={isLoading}
         />
 
-        <AuthButton type="submit" isLoading={isLoading} loadingText="Verifying device...">
-          Authorize device
-        </AuthButton>
-      </form>
-    </AuthCard>
+        <Field>
+          <FieldDescription className="text-center">
+            <Link
+              to={`/login${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
+              className="underline underline-offset-4 hover:text-primary"
+            >
+              Cancel and return to sign in
+            </Link>
+          </FieldDescription>
+        </Field>
+      </FieldGroup>
+    </form>
   );
 }

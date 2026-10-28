@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { container } from '../../../app/composition/container';
+import { getDeviceFingerprint } from '../../../shared/lib/utils';
 import { SafeRedirectTarget } from '../../../shared/domain/value-objects/redirect-target.vo';
-import { Alert } from '../../../shared/presentation/components/Alert';
-import { AuthButton } from '../../../shared/presentation/components/AuthButton';
-import { AuthCard } from '../../../shared/presentation/components/AuthCard';
-import { AuthInput } from '../../../shared/presentation/components/AuthInput';
+import {
+  AuthButtonWidget,
+  AuthErrorBanner,
+  AuthFieldWidget,
+  AuthFormHeader,
+} from '../../../shared/presentation/widgets';
+import { Field, FieldDescription, FieldGroup } from '../../../shared/ui';
 import { LoginSchema, type LoginFormValues } from '../domain/login.schema';
 
 export function LoginPage() {
@@ -48,7 +52,7 @@ export function LoginPage() {
 
     setIsLoading(true);
     try {
-      const fingerprint = container.tokenStorage.getDeviceFingerprint();
+      const fingerprint = getDeviceFingerprint();
       const result = await container.authService.login({
         email: validation.data.email,
         password: validation.data.password,
@@ -69,16 +73,14 @@ export function LoginPage() {
         return;
       }
 
-      // User is fully authenticated
       if (returnTo && result.tokens) {
         const target = new SafeRedirectTarget(returnTo).url;
-        // Direct the user to the consent/handoff page to complete seamless transition to target app
         const handoffParams = new URLSearchParams({
           return_to: target,
           access_token: result.tokens.accessToken,
           refresh_token: result.tokens.refreshToken,
         });
-        window.location.href = `/consent?${handoffParams.toString()}`;
+        navigate(`/consent?${handoffParams.toString()}`);
         return;
       }
 
@@ -91,62 +93,65 @@ export function LoginPage() {
   };
 
   return (
-    <AuthCard
-      title="Welcome back"
-      subtitle="Sign in to your AtlasHub account to access your workspace"
-      footer={
-        <div className="text-center">
-          Don't have an account yet?{' '}
-          <Link
-            to={`/register${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
-            className="text-primary font-semibold hover:underline"
-          >
-            Create one
-          </Link>
-        </div>
-      }
-    >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {serverError && <Alert type="error">{serverError}</Alert>}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full max-w-md mx-auto">
+      <FieldGroup>
+        <AuthFormHeader
+          title="Login to your account"
+          subtitle="Enter your email below to login to your account"
+        />
 
-        <AuthInput
-          label="Email address"
-          name="email"
+        {serverError && <AuthErrorBanner error={serverError} />}
+
+        <AuthFieldWidget
+          id="email"
+          label="Email"
           type="email"
-          placeholder="ada@example.com"
-          required
+          placeholder="m@example.com"
           value={formValues.email}
-          error={errors.email}
-          onChange={(e) => handleChange('email', e.target.value)}
+          onChange={(val) => handleChange('email', val)}
+          errors={errors.email ? [errors.email] : undefined}
+          disabled={isLoading}
+          required
+        />
+
+        <AuthFieldWidget
+          id="password"
+          label="Password"
+          type="password"
+          value={formValues.password}
+          onChange={(val) => handleChange('password', val)}
+          errors={errors.password ? [errors.password] : undefined}
+          disabled={isLoading}
+          required
+          labelAction={
+            <Link
+              to={`/forgot-password${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
+              className="text-sm underline-offset-4 hover:underline"
+            >
+              Forgot your password?
+            </Link>
+          }
+        />
+
+        <AuthButtonWidget
+          text="Login"
+          loadingText="Logging in..."
+          isLoading={isLoading}
           disabled={isLoading}
         />
 
-        <div className="flex flex-col gap-1">
-          <AuthInput
-            label="Password"
-            name="password"
-            type="password"
-            placeholder="••••••••"
-            required
-            value={formValues.password}
-            error={errors.password}
-            onChange={(e) => handleChange('password', e.target.value)}
-            disabled={isLoading}
-          />
-          <div className="text-right">
+        <Field>
+          <FieldDescription className="text-center">
+            Don't have an account?{' '}
             <Link
-              to={`/forgot-password${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
-              className="text-xs text-primary font-medium hover:underline"
+              to={`/register${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
+              className="underline underline-offset-4 hover:text-primary"
             >
-              Forgot password?
+              Sign up
             </Link>
-          </div>
-        </div>
-
-        <AuthButton type="submit" isLoading={isLoading} loadingText="Signing in...">
-          Sign in
-        </AuthButton>
-      </form>
-    </AuthCard>
+          </FieldDescription>
+        </Field>
+      </FieldGroup>
+    </form>
   );
 }

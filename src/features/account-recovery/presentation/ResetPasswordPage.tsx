@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { container } from '../../../app/composition/container';
-import { Alert } from '../../../shared/presentation/components/Alert';
-import { AuthButton } from '../../../shared/presentation/components/AuthButton';
-import { AuthCard } from '../../../shared/presentation/components/AuthCard';
-import { AuthInput } from '../../../shared/presentation/components/AuthInput';
+import {
+  AuthButtonWidget,
+  AuthErrorBanner,
+  AuthFieldWidget,
+  AuthFormHeader,
+} from '../../../shared/presentation/widgets';
+import { Field, FieldDescription, FieldGroup } from '../../../shared/ui';
 import { ResetPasswordSchema } from '../domain/recovery.schema';
 
 export function ResetPasswordPage() {
@@ -46,50 +49,59 @@ export function ResetPasswordPage() {
   };
 
   return (
-    <AuthCard
-      title="Create new password"
-      subtitle={`Enter the reset code sent to ${email} along with your new password.`}
-      footer={
-        <div className="text-center">
-          <Link
-            to={`/login${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
-            className="text-primary font-semibold hover:underline"
-          >
-            Return to sign in
-          </Link>
-        </div>
-      }
-    >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {error && <Alert type="error">{error}</Alert>}
-        {success && <Alert type="success">{success}</Alert>}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full max-w-md mx-auto">
+      <FieldGroup>
+        <AuthFormHeader
+          title="Create new password"
+          subtitle={`Enter the reset code sent to ${email} along with your new password.`}
+        />
 
-        <AuthInput
+        {error && <AuthErrorBanner error={error} />}
+        {success && (
+          <div className="bg-primary/10 text-primary text-sm p-3 rounded-md text-center">
+            {success}
+          </div>
+        )}
+
+        <AuthFieldWidget
+          id="otp"
           label="Reset Code"
-          name="otp"
           placeholder="e.g. 123456"
-          required
-          autoFocus
           value={otp}
-          onChange={(e) => setOtp(e.target.value)}
+          onChange={(val) => setOtp(val)}
           disabled={isLoading}
-        />
-
-        <AuthInput
-          label="New Password"
-          name="newPassword"
-          type="password"
-          placeholder="At least 8 characters with 1 capital and 1 number"
           required
+        />
+
+        <AuthFieldWidget
+          id="newPassword"
+          label="New Password"
+          type="password"
+          placeholder="••••••••"
           value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
+          onChange={(val) => setNewPassword(val)}
+          disabled={isLoading}
+          required
+        />
+
+        <AuthButtonWidget
+          text="Reset password"
+          loadingText="Resetting..."
+          isLoading={isLoading}
           disabled={isLoading}
         />
 
-        <AuthButton type="submit" isLoading={isLoading} loadingText="Resetting...">
-          Reset password
-        </AuthButton>
-      </form>
-    </AuthCard>
+        <Field>
+          <FieldDescription className="text-center">
+            <Link
+              to={`/login${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
+              className="underline underline-offset-4 hover:text-primary"
+            >
+              Return to sign in
+            </Link>
+          </FieldDescription>
+        </Field>
+      </FieldGroup>
+    </form>
   );
 }

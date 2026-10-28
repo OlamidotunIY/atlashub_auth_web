@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SafeRedirectTarget } from '../../../shared/domain/value-objects/redirect-target.vo';
-import { AuthCard } from '../../../shared/presentation/components/AuthCard';
+import { AuthFormHeader } from '../../../shared/presentation/widgets';
+import { FieldGroup } from '../../../shared/ui';
 
 export function ConsentPage() {
   const [searchParams] = useSearchParams();
@@ -36,16 +37,20 @@ export function ConsentPage() {
   }, [returnTo, accessToken, refreshToken]);
 
   return (
-    <AuthCard
-      title="Authorizing Access"
-      subtitle="Connecting your AtlasHub identity to the application..."
-    >
-      <div className="flex flex-col items-center justify-center py-6 gap-3 text-center">
-        <div className="h-8 w-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-xs text-muted-foreground">
-          Redirecting to {returnTo ? new URL(returnTo).origin : 'application'}...
-        </p>
-      </div>
-    </AuthCard>
+    <div className="flex flex-col gap-6 w-full max-w-md mx-auto text-center">
+      <FieldGroup>
+        <AuthFormHeader
+          title="Authorizing Access"
+          subtitle="Connecting your AtlasHub identity to the application..."
+        />
+
+        <div className="flex flex-col items-center justify-center py-8 gap-4">
+          <div className="h-10 w-10 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs text-muted-foreground">
+            Redirecting to {returnTo ? new URL(returnTo).origin : 'application'}...
+          </p>
+        </div>
+      </FieldGroup>
+    </div>
   );
 }

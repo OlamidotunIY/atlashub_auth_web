@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { container } from '../../../app/composition/container';
-import { Alert } from '../../../shared/presentation/components/Alert';
-import { AuthButton } from '../../../shared/presentation/components/AuthButton';
-import { AuthCard } from '../../../shared/presentation/components/AuthCard';
-import { AuthInput } from '../../../shared/presentation/components/AuthInput';
-import { AuthSelect } from '../../../shared/presentation/components/AuthSelect';
 import {
-  COUNTRY_OPTIONS,
-  RegistrationSchema,
-  type RegistrationFormValues,
-} from '../domain/registration.schema';
+  AuthButtonWidget,
+  AuthErrorBanner,
+  AuthFieldWidget,
+  AuthFormHeader,
+  AuthSelectWidget,
+} from '../../../shared/presentation/widgets';
+import { Field, FieldDescription, FieldGroup } from '../../../shared/ui';
+import { RegistrationSchema, type RegistrationFormValues } from '../domain/registration.schema';
+
+const COUNTRY_OPTIONS = [
+  { value: 'NG', label: 'Nigeria (NG)' },
+  { value: 'GH', label: 'Ghana (GH)' },
+  { value: 'KE', label: 'Kenya (KE)' },
+  { value: 'ZA', label: 'South Africa (ZA)' },
+  { value: 'US', label: 'United States (US)' },
+  { value: 'GB', label: 'United Kingdom (GB)' },
+  { value: 'CA', label: 'Canada (CA)' },
+];
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -21,8 +30,8 @@ export function RegisterPage() {
     firstName: '',
     lastName: '',
     email: '',
-    password: '',
     country: 'NG',
+    password: '',
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof RegistrationFormValues, string>>>({});
@@ -55,99 +64,113 @@ export function RegisterPage() {
 
     setIsLoading(true);
     try {
-      await container.authService.registerIndividual(validation.data);
-      const query = new URLSearchParams();
-      query.set('email', validation.data.email);
+      await container.authService.registerIndividual({
+        firstName: validation.data.firstName.trim(),
+        lastName: validation.data.lastName.trim(),
+        email: validation.data.email.trim(),
+        country: validation.data.country,
+        password: validation.data.password,
+      });
+
+      const query = new URLSearchParams({ email: validation.data.email });
       if (returnTo) query.set('return_to', returnTo);
       navigate(`/verify-email?${query.toString()}`);
     } catch (err: any) {
-      setServerError(err?.message || 'Failed to register. Please try again.');
+      setServerError(err?.message || 'Failed to create your account. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <AuthCard
-      title="Create your account"
-      subtitle="Register an individual AtlasHub account to access our commerce & business network"
-      footer={
-        <div className="text-center">
-          Already have an account?{' '}
-          <Link
-            to={`/login${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
-            className="text-primary font-semibold hover:underline"
-          >
-            Sign in
-          </Link>
-        </div>
-      }
-    >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {serverError && <Alert type="error">{serverError}</Alert>}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full max-w-lg mx-auto">
+      <FieldGroup className="gap-y-5">
+        <AuthFormHeader
+          title="Create an account"
+          subtitle="Enter your details below to get started"
+        />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <AuthInput
+        {serverError && <AuthErrorBanner error={serverError} />}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <AuthFieldWidget
+            id="firstName"
             label="First Name"
-            name="firstName"
             placeholder="Ada"
-            required
             value={formValues.firstName}
-            error={errors.firstName}
-            onChange={(e) => handleChange('firstName', e.target.value)}
+            onChange={(val) => handleChange('firstName', val)}
+            errors={errors.firstName ? [errors.firstName] : undefined}
             disabled={isLoading}
-          />
-          <AuthInput
-            label="Last Name"
-            name="lastName"
-            placeholder="Lovelace"
             required
+          />
+
+          <AuthFieldWidget
+            id="lastName"
+            label="Last Name"
+            placeholder="Lovelace"
             value={formValues.lastName}
-            error={errors.lastName}
-            onChange={(e) => handleChange('lastName', e.target.value)}
+            onChange={(val) => handleChange('lastName', val)}
+            errors={errors.lastName ? [errors.lastName] : undefined}
             disabled={isLoading}
+            required
           />
         </div>
 
-        <AuthInput
-          label="Email address"
-          name="email"
+        <AuthFieldWidget
+          id="email"
+          label="Email"
           type="email"
-          placeholder="ada@example.com"
-          required
+          placeholder="m@example.com"
           value={formValues.email}
-          error={errors.email}
-          onChange={(e) => handleChange('email', e.target.value)}
+          onChange={(val) => handleChange('email', val)}
+          errors={errors.email ? [errors.email] : undefined}
           disabled={isLoading}
+          required
         />
 
-        <AuthSelect
-          label="Country of residence"
-          name="country"
-          required
-          options={COUNTRY_OPTIONS}
+        <AuthSelectWidget
+          id="country"
+          label="Country"
+          placeholder="Select country"
           value={formValues.country}
-          error={errors.country}
-          onChange={(e) => handleChange('country', e.target.value)}
+          onChange={(val) => handleChange('country', val)}
+          errors={errors.country ? [errors.country] : undefined}
+          options={COUNTRY_OPTIONS}
           disabled={isLoading}
-        />
-
-        <AuthInput
-          label="Password"
-          name="password"
-          type="password"
-          placeholder="At least 8 characters with 1 capital and 1 number"
           required
+        />
+
+        <AuthFieldWidget
+          id="password"
+          label="Password"
+          type="password"
+          placeholder="••••••••"
           value={formValues.password}
-          error={errors.password}
-          onChange={(e) => handleChange('password', e.target.value)}
+          onChange={(val) => handleChange('password', val)}
+          errors={errors.password ? [errors.password] : undefined}
+          disabled={isLoading}
+          required
+        />
+
+        <AuthButtonWidget
+          text="Create account"
+          loadingText="Creating account..."
+          isLoading={isLoading}
           disabled={isLoading}
         />
 
-        <AuthButton type="submit" isLoading={isLoading} loadingText="Creating account...">
-          Create account
-        </AuthButton>
-      </form>
-    </AuthCard>
+        <Field>
+          <FieldDescription className="text-center mt-2">
+            Already have an account?{' '}
+            <Link
+              to={`/login${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ''}`}
+              className="underline underline-offset-4 hover:text-primary"
+            >
+              Log in
+            </Link>
+          </FieldDescription>
+        </Field>
+      </FieldGroup>
+    </form>
   );
 }
