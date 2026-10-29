@@ -61,8 +61,8 @@ export function VerifyEmailPage() {
     setError(null);
     try {
       await container.authService.verifyEmail({ email, otp: code });
-      const query = new URLSearchParams({ email });
-      if (returnTo) query.set('return_to', returnTo);
+      const query = new URLSearchParams(searchParams);
+      query.set('email', email);
       navigate(`/login?${query.toString()}`);
     } catch (err: any) {
       setError(err?.message || 'Failed to verify email. Please check the code and try again.');

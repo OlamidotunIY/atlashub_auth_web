@@ -72,9 +72,9 @@ export function RegisterPage() {
         password: validation.data.password,
       });
 
-      const query = new URLSearchParams({ email: validation.data.email });
-      if (returnTo) query.set('return_to', returnTo);
-      navigate(`/verify-email?${query.toString()}`);
+      const forwardParams = new URLSearchParams(searchParams);
+      forwardParams.set('email', validation.data.email);
+      navigate(`/verify-email?${forwardParams.toString()}`);
     } catch (err: any) {
       setServerError(err?.message || 'Failed to create your account. Please try again.');
     } finally {

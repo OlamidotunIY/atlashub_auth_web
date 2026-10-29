@@ -31,6 +31,23 @@ export interface VerifyDeviceParams {
   deviceFingerprint: string;
 }
 
+export interface AuthorizeOAuthParams {
+  clientId: string;
+  redirectUri: string;
+  responseType: string;
+  codeChallenge: string;
+  codeChallengeMethod: string;
+  state?: string;
+  scope?: string;
+  accessToken?: string;
+}
+
+export interface AuthorizeOAuthResult {
+  code: string;
+  state?: string;
+  redirectUri: string;
+}
+
 export interface IdentityAuthPort {
   registerIndividual(params: RegisterIndividualParams): Promise<void>;
   login(params: LoginParams): Promise<LoginResult>;
@@ -46,4 +63,5 @@ export interface IdentityAuthPort {
   revokeDevice(deviceId: number): Promise<void>;
   logout(): Promise<void>;
   logoutAll(): Promise<void>;
+  authorizeOAuth(params: AuthorizeOAuthParams): Promise<AuthorizeOAuthResult>;
 }

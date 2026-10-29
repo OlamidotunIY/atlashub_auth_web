@@ -59,27 +59,39 @@ export function LoginPage() {
         deviceFingerprint: fingerprint,
       });
 
+      const forwardParams = new URLSearchParams(searchParams);
+      forwardParams.set('email', validation.data.email);
+
       if (result.status === 'EMAIL_VERIFICATION_REQUIRED') {
-        const query = new URLSearchParams({ email: validation.data.email });
-        if (returnTo) query.set('return_to', returnTo);
-        navigate(`/verify-email?${query.toString()}`);
+        navigate(`/verify-email?${forwardParams.toString()}`);
         return;
       }
 
       if (result.status === 'DEVICE_VERIFICATION_REQUIRED') {
-        const query = new URLSearchParams({ email: validation.data.email });
-        if (returnTo) query.set('return_to', returnTo);
-        navigate(`/mfa?${query.toString()}`);
+        navigate(`/mfa?${forwardParams.toString()}`);
         return;
       }
 
-      if (returnTo && result.tokens) {
-        const target = new SafeRedirectTarget(returnTo).url;
+      const clientId = searchParams.get('client_id');
+      const redirectUri = searchParams.get('redirect_uri');
+      const codeChallenge = searchParams.get('code_challenge');
+      const codeChallengeMethod = searchParams.get('code_challenge_method');
+      const state = searchParams.get('state');
+      const scope = searchParams.get('scope');
+
+      if ((returnTo || clientId) && result.tokens) {
         const handoffParams = new URLSearchParams({
-          return_to: target,
           access_token: result.tokens.accessToken,
           refresh_token: result.tokens.refreshToken,
         });
+        if (returnTo) handoffParams.set('return_to', new SafeRedirectTarget(returnTo).url);
+        if (clientId) handoffParams.set('client_id', clientId);
+        if (redirectUri) handoffParams.set('redirect_uri', redirectUri);
+        if (codeChallenge) handoffParams.set('code_challenge', codeChallenge);
+        if (codeChallengeMethod) handoffParams.set('code_challenge_method', codeChallengeMethod);
+        if (state) handoffParams.set('state', state);
+        if (scope) handoffParams.set('scope', scope);
+
         navigate(`/consent?${handoffParams.toString()}`);
         return;
       }

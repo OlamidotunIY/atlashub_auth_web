@@ -1,5 +1,7 @@
 import type { AxiosInstance } from 'axios';
 import type {
+  AuthorizeOAuthParams,
+  AuthorizeOAuthResult,
   IdentityAuthPort,
   LoginParams,
   RegisterIndividualParams,
@@ -177,5 +179,40 @@ export class HttpIdentityAuthAdapter implements IdentityAuthPort {
     } finally {
       this.storage.clearTokens();
     }
+  }
+
+  async authorizeOAuth(params: AuthorizeOAuthParams): Promise<AuthorizeOAuthResult> {
+    const headers: Record<string, string> = {};
+    if (params.accessToken) {
+      headers.Authorization = `Bearer ${params.accessToken}`;
+    }
+    const res = await this.http.post<
+      BackendApiResponse<{
+        code: string;
+        state?: string;
+        redirectUri?: string;
+        redirect_uri?: string;
+      }>
+    >(
+      '/api/v1/oauth2/authorize',
+      {
+        clientId: params.clientId,
+        redirectUri: params.redirectUri,
+        responseType: params.responseType,
+        codeChallenge: params.codeChallenge,
+        codeChallengeMethod: params.codeChallengeMethod,
+        state: params.state,
+        scope: params.scope,
+      },
+      { headers }
+    );
+
+    const data = res.data.data;
+    const redirectUri = data.redirectUri || data.redirect_uri || params.redirectUri;
+    return {
+      code: data.code,
+      state: data.state,
+      redirectUri,
+    };
   }
 }
